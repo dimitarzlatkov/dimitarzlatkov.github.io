@@ -1,113 +1,82 @@
-
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>Launching App...</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
-        <meta name="viewport" content="width=device-width, user-scalable=no">
-            <script>
-                var appname = "TestDeepLink";
-                var applink = "reloyalty://starlingredirect";  // id = nil
-                var fallback_url_android = "";
-                var fallback_url_ios = ""//Set correct url for appstore when app is published
-                var android_package_name = "com.reloyalty";
-                </script>
-            
-            
-    </head>
-    <body class="text-center os-android">
-        
-        <iframe id="i" style="display:none" height=0 width=0></iframe>
-        
-        <section id="buttons" class="col-xs-8 col-xs-offset-2" style="display:none;">
-            <button type="button" onclick='window.location = applink'>OPEN THE APP</button>
-            <button type="button" class="second" onclick='window.location = fallback_url_android'>
-                DOWNLOAD APP
-            </button>
-        </section>
-        
-        <section id="buttonsIOS" class="col-xs-8 col-xs-offset-2" style="display:none;">
-            <button type="button" onclick='window.location = applink'>OPEN THE APP</button>
-            <button type="button" class="second" onclick='window.location = fallback_url_ios'>
-                DOWNLOAD APP
-            </button>
-        </section>
-        
-        <script>
-            document.ontouchmove = function(event){
-                event.preventDefault();
+
+<head>
+    <title>Launching App...</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <script>
+        var appname = "TestDeepLink";
+        var applink = "reloyalty://starlingredirect";  // id = nil
+        var fallback_url_android = "";
+        var fallback_url_ios = ""//Set correct url for appstore when app is published
+        var android_package_name = "com.reloyalty";
+    </script>
+
+
+</head>
+
+<body class="text-center os-android">
+    <script>
+        window.onload = function () {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            //Transfer query string passed after "?" in the url of this page to the custom scheme app link
+            if (location.search != "") {
+                applink = applink + "/" + location.search.substring(1)
             }
-        
-        // Needed when we android intent does not work when opening this page from another web page, not from another app
-        function show_buttons ()
-        {
-            var buttons = document.getElementById('buttons');
-            buttons.style.display = 'block';
-        }
-        
-        //needed in android as the user may choose to open a deep link in the browser
-        function show_buttons_IOS ()
-        {
-            var buttons = document.getElementById('buttonsIOS');
-            buttons.style.display = 'block';
-        }
-        
-        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        
-        //Transfer query string passed after "?" in the url of this page to the custom scheme app link
-        if (location.search != "") {
-            applink = applink + "/" + location.search.substring(1)
-        }
-        
-        
-        if (/Windows/i.test(userAgent)) {  //WINDOWS PHONE - redirect to the app , if not present automatically starts a search in windows store searching for "mytelenorbulgaria". When publishing app to store verify this search is valid
-            location.replace(applink);
-        }
-        else if (/android/i.test(userAgent)) {// ANDROID - check if opened from generic browser or chrome
-            
-            if (
-                navigator.userAgent.indexOf('Version/') > -1 // generic Android Browser - iframe + fallback
-                || navigator.userAgent.indexOf('Firefox/') > -1
+
+
+            if (/Windows/i.test(userAgent)) {  //WINDOWS PHONE - redirect to the app , if not present automatically starts a search in windows store searching for "mytelenorbulgaria". When publishing app to store verify this search is valid
+                location.replace(applink);
+            }
+            else if (/android/i.test(userAgent)) {// ANDROID - check if opened from generic browser or chrome
+
+                if (
+                    navigator.userAgent.indexOf('Version/') > -1 // generic Android Browser - iframe + fallback
+                    || navigator.userAgent.indexOf('Firefox/') > -1
                 ) {
-                i = document.getElementById('i');
-                i.src = applink;
-                
-                setTimeout(function() {
-                           if (i.contentDocument) {
-                           history.length > 1 ? history.back() : "We need an alternative to this: open('about:', '_self').close()";
-                           }
-                           else {
-                           location.replace(fallback_url_android);
-                           }
-                           }, 500);
-            }
+                    i = document.getElementById('i');
+                    i.src = applink;
+
+                    setTimeout(function () {
+                        if (i.contentDocument) {
+                            history.length > 1 ? history.back() : "We need an alternative to this: open('about:', '_self').close()";
+                        }
+                        else {
+                            location.replace(fallback_url_android);
+                        }
+                    }, 500);
+                }
                 else if (navigator.userAgent.indexOf('Chrome/') > -1) { // Google Chrome - intent + showing buttons redirecting to app or store
                     parts = applink.match(/^([^:]+):(.*)/);
                     uri_scheme = parts[1];
-                    uri_data   = parts[2];
-                    
+                    uri_data = parts[2];
+
                     intent_url = "intent:" + uri_data +
-                    "#Intent" +
-                    ";scheme=" + uri_scheme +
-                    ";package=" + android_package_name +
-                    ";end";
-                    
+                        "#Intent" +
+                        ";scheme=" + uri_scheme +
+                        ";package=" + android_package_name +
+                        ";end";
+
                     location.replace(intent_url);
-                    
-                    setTimeout(function() {
-                               show_buttons();
-                               }, 1000);
-                               
-                               
+
+                    setTimeout(function () {
+                        show_buttons();
+                    }, 1000);
+
+
                 }
-                
-        } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) { //Universal links don't go to browser if app is installed , otherwise fallback to appstore
-            show_buttons_IOS()
+
+            } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) { //Universal links don't go to browser if app is installed , otherwise fallback to appstore
+                {}
+            }
+            else {  //ALL OTHER - redirect to custom scheme
+                location.replace(applink);
+            }
         }
-        else {  //ALL OTHER - redirect to custom scheme
-            location.replace(applink);
-        }
-        </script>
-    </body>
+    </script>
+</body>
+
 </html>
