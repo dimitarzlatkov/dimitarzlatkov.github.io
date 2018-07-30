@@ -57,7 +57,7 @@
         
         //Transfer query string passed after "?" in the url of this page to the custom scheme app link
         if (location.search != "") {
-            applink = applink + "/" + location.search.substring(1)
+            applink = applink + "/?" + location.search.substring(1)
         }
         
         
@@ -91,7 +91,7 @@
                     "#Intent" +
                     ";scheme=" + uri_scheme +
                     ";package=" + android_package_name +
-                    ";end";
+                    ";end"; 
                     
                     location.replace(intent_url);
                     
